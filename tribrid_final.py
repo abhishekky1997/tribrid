@@ -4,6 +4,7 @@ import face_recognition
 import cv2, pickle
 from firebase import firebase
 import time, copy, datetime
+from datetime import date
 import numpy as np
 from imutils.video import FPS
 
@@ -69,6 +70,7 @@ while(True):
                 name = data["names"][i]
                 counts[name] = counts.get(name, 0) + 1
             name = max(counts, key=counts.get)
+            if name=="P088": text = 'Occupied'
 
         # patching data to firebase console
         x=datetime.datetime.now().strftime("%H:%M:%S")
@@ -81,6 +83,32 @@ while(True):
     #     firebase.patch("/Object Detection/",{nowtime:"gun detected at camera 1"})
 
     if cv2.waitKey(1) & 0xFF == 27: break       # break if esc is pressed
+
+    #TODO: room occupacy status
+    today=date.today().strftime("%m:%d:%Y")
+    if text == 'Occupied':
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        firebase.patch('/Room Occupied/R0088/'+today,{current_time:text})
+        result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
+        if(result==None):
+            firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':1})
+        else:
+            result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
+            result+=1
+            firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':result})
+    else:
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        firebase.patch('/Room Occupied/R0088/'+today,{current_time:text})
+        result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
+        if(result==None):
+            firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':1})
+        else:
+            result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
+            result+=1
+            firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':result})
+
     fps.update()
 
 # stop the timer and display FPS information

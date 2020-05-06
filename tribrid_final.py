@@ -100,7 +100,7 @@ while(True):
             result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
             result+=1
             firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':result})
-        print("Room is occupied")
+        print("Room is occupied by prisoner P0088")
     else:
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
@@ -112,7 +112,7 @@ while(True):
             result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
             result+=1
             firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':result})
-        print("Room is not occupied")
+        print("Room is not occupied by prisoner P0088")
 
     fps.update()
 

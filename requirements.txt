@@ -1,0 +1,16 @@
+numpy
+imutils
+opencv-python
+opencv-contrib-python
+time
+copy
+datetime
+pickle
+dlib
+face_recognition_models
+face_recognition
+firebase
+python_jwt
+gcloud
+sseclient
+requests_toolbelt

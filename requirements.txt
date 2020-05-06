@@ -3,7 +3,6 @@ imutils
 opencv-python
 opencv-contrib-python
 datetime
-pickle
 dlib
 face_recognition_models
 face_recognition
@@ -12,3 +11,5 @@ python_jwt
 gcloud
 sseclient
 requests_toolbelt
+crypto
+pycryptodome

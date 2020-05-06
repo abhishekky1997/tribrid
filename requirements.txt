@@ -2,8 +2,6 @@ numpy
 imutils
 opencv-python
 opencv-contrib-python
-time
-copy
 datetime
 pickle
 dlib

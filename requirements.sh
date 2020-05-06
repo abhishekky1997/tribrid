@@ -11,3 +11,5 @@ sudo apt-get upgrade -y
 pip3 install -r requirements.txt
 
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1twcUs1sZSMwD3XHAtPtPfLivqwgIUSC2' -O 'encodings.pickle'
+
+python -m pip install pycrypto

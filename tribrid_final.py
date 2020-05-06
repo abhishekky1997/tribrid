@@ -27,6 +27,7 @@ _, frame2 = cap.read()                      # capturing second frame
 
 time1 = time.time()
 activity_count = 0
+text = "Unoccupied"
 
 fps = FPS().start()
 # Main Loop

@@ -48,6 +48,7 @@ while(True):
             nowtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             firebase.patch('/Motion Detection/',{nowtime:activity_count})
             activity_count=0
+            print("activity detected")
 
     #TODO: Facial Recognition
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # grayscale image
@@ -70,6 +71,7 @@ while(True):
                 name = data["names"][i]
                 counts[name] = counts.get(name, 0) + 1
             name = max(counts, key=counts.get)
+            print(f"{name} was detected in room R088")
             if name=="P088": text = 'Occupied'
 
         # patching data to firebase console
@@ -97,6 +99,7 @@ while(True):
             result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
             result+=1
             firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':result})
+        print("Room is occupied")
     else:
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
@@ -108,6 +111,7 @@ while(True):
             result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
             result+=1
             firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':result})
+        print("Room is not occupied")
 
     fps.update()
 

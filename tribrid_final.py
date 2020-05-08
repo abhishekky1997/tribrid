@@ -7,7 +7,9 @@ import time, copy, datetime
 from datetime import date
 import numpy as np
 from imutils.video import FPS
+import sys
 
+room = sys.argv[1]
 # initialize firebase url
 firebase = firebase.FirebaseApplication('https://capstone-prototype-7b1f9.firebaseio.com/', None)
 # serialized facial encodings
@@ -27,7 +29,7 @@ _, frame2 = cap.read()                      # capturing second frame
 
 time1 = time.time()
 activity_count = 0
-text = "Unoccupied"
+
 
 fps = FPS().start()
 # Main Loop
@@ -60,6 +62,7 @@ while(True):
     encodings = face_recognition.face_encodings(rgb, boxes)     # encode those faces from rgb
     
     names=[]
+    text = "Unoccupied"
     # Loop over facial embeddings and check if faces match
     for encoding in encodings:
         matches = face_recognition.compare_faces(data["encodings"], encoding)
@@ -73,13 +76,14 @@ while(True):
                 counts[name] = counts.get(name, 0) + 1
             name = max(counts, key=counts.get)
             print(f"{name} was detected in room R088")
-            if name=="P088": text = 'Occupied'
+            text = 'Occupied'
 
         # patching data to firebase console
         x=datetime.datetime.now().strftime("%H:%M:%S")
         y=datetime.datetime.now().strftime("%Y-%m-%d")
-        firebase.patch('/Monitoring/'+name+'/'+y+'/',{x:"At camera 1"})
-
+        firebase.patch('/Monitoring/'+name+'/'+y+'/',{x:"At camera "+room})
+        names.append(name)
+    print(*names, 'are found in ', room)
     #TODO: object detection
     # if len(gun) > 0:
     #     nowtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -92,27 +96,25 @@ while(True):
     if text == 'Occupied':
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
-        firebase.patch('/Room Occupied/R0088/'+today,{current_time:text})
-        result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
+        firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
+        result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
         if(result==None):
-            firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':1})
+            firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':1})
         else:
-            result=firebase.get('/Room Occupied/R0088/'+today,'Occupied')
+            result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
             result+=1
-            firebase.patch('/Room Occupied/R0088/'+today,{'Occupied':result})
-        print("Room is occupied by prisoner P0088")
+            firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':result})
     else:
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
-        firebase.patch('/Room Occupied/R0088/'+today,{current_time:text})
-        result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
+        firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
+        result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
         if(result==None):
-            firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':1})
+            firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':1})
         else:
-            result=firebase.get('/Room Occupied/R0088/'+today,'Unoccupied')
+            result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
             result+=1
-            firebase.patch('/Room Occupied/R0088/'+today,{'Unoccupied':result})
-        print("Room is not occupied by prisoner P0088")
+            firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':result})
 
     fps.update()
 

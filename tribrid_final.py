@@ -51,9 +51,11 @@ def distMap(frame1, frame2):
 cap = cv2.VideoCapture(0)
 grabbed, frame1 = cap.read()                # capturing first frame
 # exit if unable to grab frames
-if not grabbed: sys.exit("unable to grab frames, error in camera")
+if not grabbed:
+    sys.exit("unable to grab frames, error in camera")
 #  grab frame dimensions if they are empty
-if W is None or H is None: (H, W) = frame1.shape[:2]
+if W is None or H is None:
+    (H, W) = frame1.shape[:2]
 _, frame2 = cap.read()                      # capturing second frame
 
 time1 = time.time()
@@ -63,9 +65,9 @@ activity_count = 0
 # TODO: Main Loop
 fps = FPS().start()
 while(True):
-# -----------------------------------------------------------------------------------------------
-# TODO: Activity Monitoring
-# -----------------------------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------------------------
+    # TODO: Activity Monitoring
+    # -----------------------------------------------------------------------------------------------
     _, frame = cap.read()                           # capture image
     # get length & width of image
     rows, cols, _ = np.shape(frame)
@@ -78,14 +80,15 @@ while(True):
     # calculate std deviation test
     _, stDev = cv2.meanStdDev(mod)
 
-    if stDev > sdThresh: activity_count += 1          # computing activity intensity
+    if stDev > sdThresh:
+        activity_count += 1          # computing activity intensity
     # push to motion detection data to cloud
     if(time.time()-time1 >= 5):
-            time1 = time.time()
-            nowtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            firebase.patch('/Motion Detection/', {nowtime: activity_count})
-            activity_count = 0
-            print("activity detected")
+        time1 = time.time()
+        nowtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        firebase.patch('/Motion Detection/', {nowtime: activity_count})
+        activity_count = 0
+        print("activity detected")
 
 # -----------------------------------------------------------------------------------------------
 # TODO: Facial Recognition
@@ -94,9 +97,10 @@ while(True):
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)    # rgb image
 
     dets = detector(rgb, 1)
-    boxes = [(d.left(), d.top(), d.right(), d.bottom())\
-                for i, d in enumerate(dets)]        # get tuple of box coordinates
-    encodings = face_recognition.face_encodings(rgb, boxes) # encode those faces from rgb
+    boxes = [(d.left(), d.top(), d.right(), d.bottom())
+             for i, d in enumerate(dets)]        # get tuple of box coordinates
+    encodings = face_recognition.face_encodings(
+        rgb, boxes)  # encode those faces from rgb
 
     names = []
     text = "Unoccupied"
@@ -130,71 +134,76 @@ while(True):
     net.setInput(blob)
     layerOutputs = net.forward(ln)
 
-	# initialize lists of detected bounding boxes, confidences, and class IDs, respectively
+    # initialize lists of detected bounding boxes, confidences, and class IDs, respectively
     boxes = []
     confidences = []
     classIDs = []
 
-	# loop over each of the layer outputs
+    # loop over each of the layer outputs
     for output in layerOutputs:
-		# loop over each of the detections
-		for detection in output:
-			# extract class ID and confidence by using score for each class
-			scores = detection[5:]
-			classID = np.argmax(scores)
-			confidence = scores[classID]
+        # loop over each of the detections
+        for detection in output:
+            # extract class ID and confidence by using score for each class
+            scores = detection[5:]
+            classID = np.argmax(scores)
+            confidence = scores[classID]
 
-			# filter out weak predictions by ensuring the detected
-			# probability is greater than the minimum probability
-			if confidence > confidence_score:
+            # filter out weak predictions by ensuring the detected
+            # probability is greater than the minimum probability
+            if confidence > confidence_score:
                 # YOLO returns center coords, width and height
-				box = detection[0:4] * np.array([W, H, W, H])
-				(centerX, centerY, width, height) = box.astype("int")
-				# derive top left corner for NMS
-				x = int(centerX - (width / 2))
-				y = int(centerY - (height / 2))
-				# Update all
-				boxes.append([x, y, int(width), int(height)])
-				confidences.append(float(confidence))
-				classIDs.append(classID)
+                box = detection[0:4] * np.array([W, H, W, H])
+                (centerX, centerY, width, height) = box.astype("int")
+                # derive top left corner for NMS
+                x = int(centerX - (width / 2))
+                y = int(centerY - (height / 2))
+                # Update all
+                boxes.append([x, y, int(width), int(height)])
+                confidences.append(float(confidence))
+                classIDs.append(classID)
 
-	# apply NMS
+        # apply NMS
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, confidence_score, threshold)
     if len(idxs) > 0:  # if detected
-		# loop over detected objects and push to cloud
+        # loop over detected objects and push to cloud
         for i in idxs.flatten():
             detected_object = LABELS[classIDs[i]]
             nowtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            firebase.patch("/Object Detection/",{nowtime:f"{detected_object} detected at camera {room}"})
+            firebase.patch(
+                "/Object Detection/", {nowtime: f"{detected_object} detected at camera {room}"})
 
 # -----------------------------------------------------------------------------------------------
 # TODO: room occupacy status
 # -----------------------------------------------------------------------------------------------
-    today=date.today().strftime("%m:%d:%Y")
+    today = date.today().strftime("%m:%d:%Y")
     if text == 'Occupied':
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
-        firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
-        result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
-        if(result==None):
-            firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':1})
+        firebase.patch(f'/Room Occupied/{room}/'+today, {current_time: text})
+        result = firebase.get(f'/Room Occupied/{room}/'+today, 'Occupied')
+        if(result == None):
+            firebase.patch(f'/Room Occupied/{room}/'+today, {'Occupied': 1})
         else:
-            result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
-            result+=1
-            firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':result})
+            result = firebase.get(f'/Room Occupied/{room}/'+today, 'Occupied')
+            result += 1
+            firebase.patch(
+                f'/Room Occupied/{room}/'+today, {'Occupied': result})
     else:
         t = time.localtime()
         current_time = time.strftime("%H:%M:%S", t)
-        firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
-        result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
-        if(result==None):
-            firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':1})
+        firebase.patch(f'/Room Occupied/{room}/'+today, {current_time: text})
+        result = firebase.get(f'/Room Occupied/{room}/'+today, 'Unoccupied')
+        if(result == None):
+            firebase.patch(f'/Room Occupied/{room}/'+today, {'Unoccupied': 1})
         else:
-            result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
-            result+=1
-            firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':result})
-    
-    if cv2.waitKey(1) & 0xFF == 27: break       # break if esc is pressed
+            result = firebase.get(
+                f'/Room Occupied/{room}/'+today, 'Unoccupied')
+            result += 1
+            firebase.patch(
+                f'/Room Occupied/{room}/'+today, {'Unoccupied': result})
+
+    if cv2.waitKey(1) & 0xFF == 27:
+        break       # break if esc is pressed
     fps.update()
 # -----------------------------------------------------------------------------------------------
 # TODO: End loop

@@ -1,4 +1,5 @@
-.cfg
-.names
-.weights
-.pickle
+*.cfg
+*.names
+*.weights
+*.pickle
+yolo/

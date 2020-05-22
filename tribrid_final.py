@@ -9,7 +9,6 @@ import datetime
 from datetime import date
 import numpy as np
 from imutils.video import FPS
-from imutils.video import WebcamVideoStream
 import sys
 
 room = sys.argv[1]
@@ -48,8 +47,7 @@ def distMap(frame1, frame2):
 
 
 # general videocapture from default camera
-# cap = cv2.VideoCapture(0)
-cap = vs = WebcamVideoStream(src=0).start() # threaded capture
+cap = cv2.VideoCapture(0)
 grabbed, frame1 = cap.read()                # capturing first frame
 # exit if unable to grab frames
 if not grabbed: sys.exit("unable to grab frames, error in camera")
@@ -208,6 +206,5 @@ fps.stop()
 print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
-# cap.release()
-cap.stop()
+cap.release()
 cv2.destroyAllWindows()

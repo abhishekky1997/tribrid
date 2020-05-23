@@ -50,8 +50,9 @@ def activity(cap, room, firebase, testingTime):
         fps.update()
         if(time.time()-time_test>testingTime): break
     fps.stop()
-    print("[process-1] elasped time: {:.2f}".format(fps.elapsed()))
-    print("[process-1] approx. FPS: {:.2f}".format(fps.fps()))
+    print("object detection performance")
+    print("elasped time: {:.2f}".format(fps.elapsed()))
+    print("approx. FPS:  {:.2f}".format(fps.fps()))
 
 # -----------------------------------------------------------------------------------------------
 # TODO: Facial Recognition
@@ -95,34 +96,30 @@ def facial_recognition(cap, room, firebase, data, testingTime):
 
         # TODO: room occupacy status
         today=date.today().strftime("%m:%d:%Y")
+        t = time.localtime()
+        current_time = time.strftime("%H:%M:%S", t)
+        firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
         if text == 'Occupied':
-            t = time.localtime()
-            current_time = time.strftime("%H:%M:%S", t)
-            firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
             result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
             if(result==None):
                 firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':1})
             else:
-                result=firebase.get(f'/Room Occupied/{room}/'+today,'Occupied')
                 result+=1
                 firebase.patch(f'/Room Occupied/{room}/'+today,{'Occupied':result})
         else:
-            t = time.localtime()
-            current_time = time.strftime("%H:%M:%S", t)
-            firebase.patch(f'/Room Occupied/{room}/'+today,{current_time:text})
             result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
             if(result==None):
                 firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':1})
             else:
-                result=firebase.get(f'/Room Occupied/{room}/'+today,'Unoccupied')
                 result+=1
                 firebase.patch(f'/Room Occupied/{room}/'+today,{'Unoccupied':result})
         
         fps.update()
         if(time.time()-time_test>testingTime): break
     fps.stop()
-    print("[process-2] elasped time: {:.2f}".format(fps.elapsed()))
-    print("[process-2] approx. FPS: {:.2f}".format(fps.fps()))
+    print("Facial recognition performance")
+    print("elasped time: {:.2f}".format(fps.elapsed()))
+    print("approx. FPS:  {:.2f}".format(fps.fps()))
 
 # -----------------------------------------------------------------------------------------------
 # TODO: object detection
@@ -192,8 +189,9 @@ def object_detection(cap, room, firebase, testingTime):
         fps.update()
         if(time.time()-time_test>testingTime): break
     fps.stop()
-    print("[process-3] elasped time: {:.2f}".format(fps.elapsed()))
-    print("[process-3] approx. FPS: {:.2f}".format(fps.fps()))
+    print("object detection performance: ")
+    print("elasped time: {:.2f}".format(fps.elapsed()))
+    print("approx. FPS:  {:.2f}".format(fps.fps()))
 
 
 t1 = threading.Thread(target=activity, args=[cap, room, firebase, testingTime])

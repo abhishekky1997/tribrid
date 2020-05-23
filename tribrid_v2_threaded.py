@@ -127,10 +127,10 @@ def facial_recognition(cap, room, firebase, data, testingTime):
 def object_detection(cap, room, firebase, testingTime):
     confidence_score = 0.5
     threshold = 0.3
-    labelsPath = "yolo\obj.names"
+    labelsPath = "yolo/obj.names"
     LABELS = open(labelsPath).read().strip().split("\n")
-    weightsPath = "yolo\obj.weights"
-    configPath = "yolo\obj.cfg"
+    weightsPath = "yolo/obj.weights"
+    configPath = "yolo/obj.cfg"
     # Load YOLO and get output layer names
     net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
     ln = net.getLayerNames()

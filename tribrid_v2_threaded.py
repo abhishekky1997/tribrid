@@ -32,6 +32,7 @@ def activity(cap, room, firebase, testingTime):
     while(True):
         frame2 = cap.read()
         diff32 = np.float32(frame2) - np.float32(frame1)
+        frame1 = frame2
         dist = np.uint8((np.sqrt(diff32[:, :, 0]**2 + diff32[:, :, 1]**2 + diff32[:, :, 2]**2)/441.6729559300637)*255)
         mod = cv2.GaussianBlur(dist, (9, 9), 0)         # Apply gaussian smoothing
         _, thresh = cv2.threshold(mod, 100, 255, 0)     # Thresholding
@@ -201,6 +202,9 @@ t3 = threading.Thread(target=object_detection, args=[cap, room, firebase, testin
 t1.start()
 t2.start()
 t3.start()
+t1.join()
+t2.join()
+t3.join()
 # with concurrent.futures.ProcessPoolExecutor() as executor:
 #     f1 = executor.submit(activity, [cap, room, firebase])
 #     f2 = executor.submit(facial_recognition,[cap, room, firebase, data])

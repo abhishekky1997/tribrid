@@ -8,5 +8,5 @@ then
     wget https://www.dropbox.com/s/15oxq46b0qzflkw/yolo.zip
     unzip yolo.zip && rm yolo.zip
 else
-    rm -rf yolo/
+    rm -rf yolo
 fi

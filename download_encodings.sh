@@ -2,8 +2,8 @@
 if [[! -f "encodings.pickle"]]; then
     wget https://www.dropbox.com/s/zkg7py03ijej315/encodings.pickle
 fi
-dir = "~/tribrid/yolo/"
-if [! -d "$dir"]; then
+
+if [! -d "~/tribrid/yolo/"]; then
     wget https://www.dropbox.com/s/15oxq46b0qzflkw/yolo.zip
     unzip yolo.zip && rm yolo.zip
 else
